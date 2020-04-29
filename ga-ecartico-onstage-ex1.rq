@@ -19,16 +19,16 @@ PREFIX ga: <https://data.goldenagents.org/ontology/>
 SELECT DISTINCT ?name ?birthYear (min(?performanceDate) as ?firstPerformance) ((year(?firstPerformance) - ?birthYear) as ?age) ?deathYear
 WHERE {
 
-  	?personOnstage a ga:CreativeAgent .
+  	?person a ga:CreativeAgent .
 
-  {
-    ?personOnstage		owl:sameAs*  ?personEcartico .
-  }	UNION {
-    ?personEcartico		owl:sameAs*  ?personOnstage .
-  }
+  # {
+  #   ?personOnstage		owl:sameAs*  ?personEcartico .
+  # }	UNION {
+  #   ?personEcartico		owl:sameAs*  ?personOnstage .
+  # }
 
     # Biographic information
-	?personEcartico ga:hasName ?name ;
+	?person ga:hasName ?name ;
                  ga:birthDate ?birthDate ;
                  ga:deathDate ?deathDate .
 
@@ -37,7 +37,7 @@ WHERE {
       BIND(IF(DATATYPE(?deathDate) = xsd:date, year(?deathDate), xsd:integer(substr(str(?deathDate), 0, 4))) as ?deathYear)
 
     # A work is written by a person.
-		?personOnstage ga:authorOf ?work .
+		?person ga:authorOf ?work .
 
   	# A work is performed.
 		?work a ga:Story ;
@@ -51,6 +51,6 @@ WHERE {
         FILTER (!ISURI(?birthDate) && !ISURI(?deathDate))
 
 }
-GROUP BY ?personEcartico ?name ?birthYear ?deathYear
+GROUP BY ?person ?name ?birthYear ?deathYear
 HAVING(year(?firstPerformance) <= ?deathYear)
 ORDER BY ?name

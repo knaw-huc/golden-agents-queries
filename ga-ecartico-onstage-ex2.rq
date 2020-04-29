@@ -20,16 +20,16 @@ SELECT DISTINCT ?name ?birthYear (min(?performanceDate) as ?firstPerformanceAliv
 	(COUNT(DISTINCT ?work) as ?works) (COUNT(DISTINCT ?show) as ?shows)
 	(COUNT(DISTINCT ?performingEvent) as ?performances)
 WHERE {
-  	?personOnstage a ga:CreativeAgent .
+  	?person a ga:CreativeAgent .
 
-  {
-    ?personOnstage		owl:sameAs*  ?personEcartico .
-  }	UNION {
-    ?personEcartico		owl:sameAs*  ?personOnstage .
-  }
+  # {
+  #   ?personOnstage		owl:sameAs*  ?personEcartico .
+  # }	UNION {
+  #   ?personEcartico		owl:sameAs*  ?personOnstage .
+  # }
 
     # Biographic information
-	?personEcartico ga:hasName ?name ;
+	?person ga:hasName ?name ;
                  ga:birthDate ?birthDate ;
                  ga:deathDate ?deathDate .
 
@@ -38,7 +38,7 @@ WHERE {
       BIND(IF(DATATYPE(?deathDate) = xsd:date, year(?deathDate), xsd:integer(substr(str(?deathDate), 0, 4))) as ?deathYear)
 
     # A work is written by a person.
-		?personOnstage ga:authorOf ?work .
+		?person ga:authorOf ?work .
 
   	# A work is performed.
 		?work a ga:Story ;
@@ -57,5 +57,5 @@ WHERE {
 		FILTER(year(?performanceDate) <= ?deathYear)
 
 }
-GROUP BY ?personEcartico ?name ?birthYear ?deathYear
+GROUP BY ?person ?name ?birthYear ?deathYear
 ORDER BY ?name
