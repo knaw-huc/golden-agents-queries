@@ -9,7 +9,7 @@
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX ga: <http://www.goldenagents.org/ontology/>
+PREFIX ga: <https://data.goldenagents.org/ontology/>
 
 # How many plays were made and performed during a playwriter's life?
 # Using: ECARTICO + ONSTAGE through Golden Agents ontology
@@ -23,9 +23,9 @@ WHERE {
   	?personOnstage a ga:CreativeAgent .
 
   {
-    ?personOnstage		<http://risis.eu/alignment/predicate/mySameAs>*  ?personEcartico .
+    ?personOnstage		owl:sameAs*  ?personEcartico .
   }	UNION {
-    ?personEcartico		<http://risis.eu/alignment/predicate/mySameAs>*  ?personOnstage .
+    ?personEcartico		owl:sameAs*  ?personOnstage .
   }
 
     # Biographic information
