@@ -1,4 +1,4 @@
-#+ summary: Question 1: What is the age of playwriters when their work is first performed?
+#+ summary: What is the age of playwriters when their work is first performed?
 #+ endpoint: https://sparql.diginfra.net/sparql
 #+ method: GET
 #+ tags:
