@@ -1,0 +1,56 @@
+#+ summary: What is the age of playwriters when their work is first performed? In Golden Agents ontology.
+#+ endpoint: https://sparql.diginfra.net/sparql
+#+ method: GET
+#+ tags:
+#+  - ecartico
+#+  - onstage
+#+  - linkset
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX ga: <http://www.goldenagents.org/ontology/>
+
+# What is the age of playwriters when their work is first performed?
+# Using: ECARTICO + ONSTAGE through Golden Agents ontology
+# 2020-03-20
+# Expected rows: 13
+
+SELECT DISTINCT ?name ?birthYear (min(?performanceDate) as ?firstPerformance) ((year(?firstPerformance) - ?birthYear) as ?age) ?deathYear
+WHERE {
+
+  	?personOnstage a ga:CreativeAgent .
+
+  {
+    ?personOnstage		<http://risis.eu/alignment/predicate/mySameAs>*  ?personEcartico .
+  }	UNION {
+    ?personEcartico		<http://risis.eu/alignment/predicate/mySameAs>*  ?personOnstage .
+  }
+
+    # Biographic information
+	?personEcartico ga:hasName ?name ;
+                 ga:birthDate ?birthDate ;
+                 ga:deathDate ?deathDate .
+
+    # Some birthDate and deathDate values are of type xsd:gYear. Cast them to integer.
+      BIND(IF(DATATYPE(?birthDate) = xsd:date, year(?birthDate), xsd:integer(substr(str(?birthDate), 0, 4))) as ?birthYear)
+      BIND(IF(DATATYPE(?deathDate) = xsd:date, year(?deathDate), xsd:integer(substr(str(?deathDate), 0, 4))) as ?deathYear)
+
+    # A work is written by a person.
+		?personOnstage ga:authorOf ?work .
+
+  	# A work is performed.
+		?work a ga:Story ;
+              ga:performedAs/ga:subEventOf*	?performance .
+
+	# A performance is played on a date.
+  		?performance a ga:CreativeAct ;
+              ga:startDate ?performanceDate .
+
+    # Some birthDate and deathDate values are resources (schema:StructuredValue). Filter those out.
+        FILTER (!ISURI(?birthDate) && !ISURI(?deathDate))
+
+}
+GROUP BY ?personEcartico ?name ?birthYear ?deathYear
+HAVING(year(?firstPerformance) <= ?deathYear)
+ORDER BY ?name
