@@ -1,4 +1,4 @@
-#+ summary: How many plays were made and performed during a playwriter's life?
+#+ summary: How many plays were made and performed during a playwriter's life? How many works of this author are listed in the STCN? And how many unique printer/publishers are involved in the publication?
 #+ endpoint: https://sparql.goldenagents.org/
 #+ method: GET
 #+ tags:
