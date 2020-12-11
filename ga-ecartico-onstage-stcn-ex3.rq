@@ -15,10 +15,10 @@ PREFIX ga: <https://data.goldenagents.org/ontology/>
 # How many plays were made and performed during a playwriter's life? How many works of this author are listed in the STCN? And how many unique printer/publishers are involved in the publication?
 # Using: ECARTICO + ONSTAGE + STCN through Golden Agents ontology
 # 2020-12-10
-# Expected rows: ?
+# Expected rows: 246 (with multiple names and dates, execution time around 10 minutes)
 
 SELECT DISTINCT 
-    ?name 
+    (SAMPLE(?name) AS ?name)
     ?birthYear 
     (min(?performanceDate) as ?firstPerformanceAlive) 
     (max(?performanceDate) as ?lastPerformanceAlive) 
@@ -29,47 +29,39 @@ SELECT DISTINCT
     (COUNT(DISTINCT ?otherWork) as ?otherWorks)
     (COUNT(DISTINCT ?printerSTCN) as ?uniquePrinters)
 WHERE {
-   ?person a ga:CreativeAgent ;
+    ?person a ga:CreativeAgent ;
             ga:hasName ?name ;
             ga:birthDate ?birthDate ;
             ga:deathDate ?deathDate .
 
     # Some birthDate and deathDate values are of type xsd:gYear. Cast them to integer.
-      BIND(IF(DATATYPE(?birthDate) = xsd:date, year(?birthDate), xsd:integer(substr(str(?birthDate), 0, 4))) as ?birthYear)
-      BIND(IF(DATATYPE(?deathDate) = xsd:date, year(?deathDate), xsd:integer(substr(str(?deathDate), 0, 4))) as ?deathYear)
+      BIND(IF(DATATYPE(?birthDate) = xsd:date, year(?birthDate), xsd:integer(substr(str(?birthDate), 1, 4))) as ?birthYear)
+      BIND(IF(DATATYPE(?deathDate) = xsd:date, year(?deathDate), xsd:integer(substr(str(?deathDate), 1, 4))) as ?deathYear)
+        # BIND(YEAR(?birthDate) AS ?birthYear)
+        # BIND(YEAR(?deathDate) AS ?deathYear)
 
     # A work is written by a person.
     ?person ga:authorOf ?work .
 
     # A work is performed.
-    ?work a ga:Story ;
+      ?work a ga:Story ;
               ga:performedAs ?performingEvent .
 
-    ?performingEvent ga:subEventOf* ?show .
+      ?performingEvent ga:subEventOf  ?show .
 
     # A performance is played on a date.
-    ?show a ga:CreativeAct ;
+      ?show a ga:CreativeAct ;
               ga:startDate ?performanceDate .
 
     # Some birthDate and deathDate values are resources (schema:StructuredValue). Filter those out.
-    FILTER (!ISURI(?birthDate) && !ISURI(?deathDate))
+      FILTER (!ISURI(?birthDate) && !ISURI(?deathDate))
 
     # Only performances during a person's life
-    FILTER(year(?performanceDate) <= ?deathYear)
+      FILTER(year(?performanceDate) <= ?deathYear)
 
     # Added for the STCN
-    # How many works (including the play above) has this author published and listed in the STCN?
-    ?otherWork a ga:Book ;
-               ga:writtenBy ?person .
-            
-    # Optionally, get the number of unique printers of all these plays
-    OPTIONAL {
-      ?otherWork ga:publishedBy ?printerSTCN .
-
-      ?printerSTCN a ga:PrinterOrPublisher ;
-                   ga:hasname ?printerPublisherName .
-    }
-    
+      ?otherWork ga:writtenBy ?person ;
+                 ga:publishedBy ?printerSTCN .
 
 }
 GROUP BY ?person ?name ?birthYear ?deathYear
