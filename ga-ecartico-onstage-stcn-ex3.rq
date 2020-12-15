@@ -14,15 +14,15 @@ PREFIX ga: <https://data.goldenagents.org/ontology/>
 
 # How many plays were made and performed during a playwriter's life? How many works of this author are listed in the STCN? And how many unique printer/publishers are involved in the publication?
 # Using: ECARTICO + ONSTAGE + STCN through Golden Agents ontology
-# 2020-12-10
-# Expected rows: 246 (with multiple names and dates, execution time around 10 minutes)
+# 2020-12-16
+# Expected rows: 116 (with multiple names and dates, execution time around 10 minutes)
 
 SELECT DISTINCT 
     (SAMPLE(?name) AS ?name)
-    ?birthYear 
+    (SAMPLE(?birthYear) AS ?birthYear)
     (min(?performanceDate) as ?firstPerformanceAlive) 
     (max(?performanceDate) as ?lastPerformanceAlive) 
-    ?deathYear
+    (SAMPLE(?deathYear) AS ?deathYear)
     (COUNT(DISTINCT ?work) as ?works) 
     (COUNT(DISTINCT ?show) as ?shows)
     (COUNT(DISTINCT ?performingEvent) as ?performances)
@@ -60,9 +60,9 @@ WHERE {
       FILTER(year(?performanceDate) <= ?deathYear)
 
     # Added for the STCN
-      ?otherWork ga:writtenBy ?person ;
-                 ga:publishedBy ?printerSTCN .
+      ?allBook ga:writtenBy ?person ;
+               ga:publishedBy ?printerSTCN .
 
 }
-GROUP BY ?person ?name ?birthYear ?deathYear
+GROUP BY ?person 
 ORDER BY ?name
