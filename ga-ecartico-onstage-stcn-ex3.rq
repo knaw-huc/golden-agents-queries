@@ -7,7 +7,7 @@
 #+  - stcn
 #+  - linkset
 #+ description: The results of this query are:
-#+    |name                                      |birthYear|firstPerformanceAlive|lastPerformanceAlive|deathYear|works|shows|performances|otherWorks|uniquePrinters|
+#+    |name                                      |birthYear|firstPerformanceAlive|lastPerformanceAlive|deathYear|works|shows|performances|allBooks|uniquePrinters|
 #+    |------------------------------------------|---------|---------------------|--------------------|---------|-----|-----|------------|----------|--------------|
 #+    |Abraham Alewijn                           |1664     |1702-11-13           |1721-09-25          |1721     |6    |47   |48          |0         |12            |
 #+    |Abraham Maas                              |1726     |1778-09-14           |1788-09-11          |1804     |1    |6    |6           |0         |3             |
@@ -146,7 +146,7 @@ SELECT DISTINCT
     (COUNT(DISTINCT ?work) as ?works) 
     (COUNT(DISTINCT ?show) as ?shows)
     (COUNT(DISTINCT ?performingEvent) as ?performances)
-    (COUNT(DISTINCT ?otherWork) as ?otherWorks)
+    (COUNT(DISTINCT ?allBook) as ?allBooks)
     (COUNT(DISTINCT ?printerSTCN) as ?uniquePrinters)
 WHERE {
     ?person a ga:CreativeAgent ;
